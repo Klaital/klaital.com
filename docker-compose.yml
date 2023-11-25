@@ -1,0 +1,42 @@
+version: '3.8'
+services:
+  klaital:
+    container_name: klaital.com
+    build:
+      context: .
+      target: dev
+    ports:
+      - 8180:8080
+      - 9101:9000
+    links:
+      - postgres-klaital
+      - sessionstore-klaital
+    depends_on:
+      - postgres-klaital
+      - sessionstore-klaital
+    env_file:
+      - run/.env
+    networks:
+      - klaital_net
+        #    volumes:
+        #- .:/app:rw,delegated
+
+  postgres-klaital:
+    image: postgres:16.1 
+    ports:
+      - "5431:5432"
+    env_file: run/postgres.env
+    volumes:
+      - .:/docker-entrypoint-initdb.d
+    networks:
+      - klaital_net
+    command: ["postgres", "-c", "log_statement=all"]
+
+  sessionstore-klaital:
+    image: redis:7-alpine
+    networks:
+      - klaital_net
+
+networks:
+  klaital_net:
+    name: klaital_net
