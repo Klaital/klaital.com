@@ -1,15 +1,20 @@
 
 .PHONY: build
-build: 
+build:
 	@docker build --ssh default -t $(IMAGE):latest .
 
 .PHONY: build-local
-build-local: datalayer/postgres/queries/db.go
-	go build -buildvcs=false -o ./bin/server ./cmd/server
+build-local: build-comics
+	@echo "building all servers"
+
+.PHONY: build-comics
+build-comics: pkg/repositories/comics/postgresstore/queries/db.go protobufs/gen/go/comics.pb.go pkg/repositories/login/postgresstore/queries/db.go
+	@go build -buildvcs=false -o ./bin/server/comics ./cmd/server/comics
+
 
 .PHONY: test-local
 test-local: build-local
-	go test ./...
+	@go test ./...
 
 ## Code generation
 .PHONY: setup
@@ -17,14 +22,18 @@ setup:
 	@go install github.com/kyleconroy/sqlc/cmd/sqlc@v1.14.0
 	@apt install -y protobuf-compiler
 
-datalayer/postgres/queries/db.go: datalayer/postgres/sqlc.yaml datalayer/postgres/queries/*.sql datalayer/postgres/migrations/*.sql
-	@echo "Compiling postgres sqlc module..."
-	@sqlc generate -f ./datalayer/postgres/sqlc.yaml
+pkg/repositories/comics/postgresstore/queries/db.go: pkg/repositories/comics/postgresstore/queries/*.sql pkg/repositories/comics/postgresstore/migrations/*.sql pkg/repositories/comics/postgresstore/sqlc.yaml
+	@echo "Compiling comics repo's postgres sqlc module..."
+	@sqlc generate -f pkg/repositories/comics/postgresstore/sqlc.yaml
 
+pkg/repositories/login/postgresstore/queries/db.go: pkg/repositories/login/postgresstore/queries/*.sql pkg/repositories/login/postgresstore/migrations/*.sql pkg/repositories/login/postgresstore/sqlc.yaml
+	@echo "Compiling login repo's postgres sqlc module..."
+	@sqlc generate -f pkg/repositories/login/postgresstore/sqlc.yaml
 
-protobuf/service_grpc.pb.go: protobuf/service.proto
+protobufs/gen/go/comics.pb.go: protobufs/*.proto
 	@echo "Compiling protobufs..."
-	@protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative ./protobuf/service.proto
+	@cd protobufs; buf generate ; cd ..
+
 
 ## Other tools
 

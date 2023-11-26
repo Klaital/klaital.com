@@ -5,9 +5,10 @@ import (
 	"database/sql"
 	"embed"
 	"fmt"
-	"github.com/klaital/comics/pkg/datalayer"
-	"github.com/klaital/comics/pkg/datalayer/postgresstore/queries"
 	"log/slog"
+
+	datalayer "github.com/klaital/klaital.com/pkg/repositories/comics"
+	"github.com/klaital/klaital.com/pkg/repositories/comics/postgresstore/queries"
 )
 
 //go:embed migrations/*

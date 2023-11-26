@@ -2,8 +2,9 @@ package mysqlstore
 
 import (
 	"fmt"
+
 	"github.com/jmoiron/sqlx"
-	"github.com/klaital/comics/pkg/datalayer"
+	datalayer "github.com/klaital/klaital.com/pkg/repositories/comics"
 )
 
 type MysqlStore struct {

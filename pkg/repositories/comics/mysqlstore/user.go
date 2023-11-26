@@ -5,8 +5,9 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"github.com/klaital/comics/pkg/datalayer"
 	"math/rand"
+
+	datalayer "github.com/klaital/klaital.com/pkg/repositories/comics"
 )
 
 func (s *MysqlStore) AddUser(ctx context.Context, email, password string) (*datalayer.User, error) {

@@ -3,8 +3,9 @@ package mysqlstore
 import (
 	"context"
 	"errors"
-	"github.com/klaital/comics/pkg/datalayer"
 	"time"
+
+	datalayer "github.com/klaital/klaital.com/pkg/repositories/comics"
 )
 
 func (s *MysqlStore) AddRssItems(ctx context.Context, userId, comicId uint64, rssItems []datalayer.RssItem) error {

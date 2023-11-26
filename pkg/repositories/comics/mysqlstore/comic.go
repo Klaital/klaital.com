@@ -4,8 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/klaital/comics/pkg/datalayer"
 	"time"
+
+	datalayer "github.com/klaital/klaital.com/pkg/repositories/comics"
 )
 
 func (s *MysqlStore) GetComics(ctx context.Context, userId uint64, filterNsfw *bool, filterActive *bool) ([]datalayer.Comic, error) {
