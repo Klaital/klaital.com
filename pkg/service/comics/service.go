@@ -3,14 +3,17 @@ package comics_service
 
 import (
 	comics_repo "github.com/klaital/klaital.com/pkg/repositories/comics"
+	login_repository "github.com/klaital/klaital.com/pkg/repositories/login"
 )
 
 type Service struct {
-	Repo comics_repo.Repository
+	ComicsRepo comics_repo.Repository
+	LoginRepo  login_repository.Repository
 }
 
-func New(repo comics_repo.Repository) *Service {
+func New(comicsRepo comics_repo.Repository, loginRepo login_repository.Repository) *Service {
 	return &Service{
-		Repo: repo,
+		ComicsRepo: comicsRepo,
+		LoginRepo:  loginRepo,
 	}
 }
