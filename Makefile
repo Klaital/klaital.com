@@ -4,13 +4,19 @@ build:
 	@docker build --ssh default -t $(IMAGE):latest .
 
 .PHONY: build-local
-build-local: build-comics
+build-local: build-comics build-monolith
 	@echo "building all servers"
 
 .PHONY: build-comics
 build-comics: pkg/repositories/comics/postgresstore/queries/db.go protobufs/gen/go/comics.pb.go pkg/repositories/login/postgresstore/queries/db.go
 	@go build -buildvcs=false -o ./bin/server/comics ./cmd/server/comics
 
+.PHONY: build-login
+build-login: pkg/repositories/login/postgresstore/queries/db.go protobufs/gen/go/login.pb.go pkg/repositories/login/postgresstore/queries/db.go
+
+.PHONY: build-monolith
+build-monolith: build-comics build-login
+	@go build -buildvcs=false -o ./bin/server/monolith ./cmd/server/
 
 .PHONY: test-local
 test-local: build-local
@@ -33,6 +39,11 @@ pkg/repositories/login/postgresstore/queries/db.go: pkg/repositories/login/postg
 protobufs/gen/go/comics.pb.go: protobufs/*.proto
 	@echo "Compiling protobufs..."
 	@cd protobufs; buf generate ; cd ..
+
+protobufs/gen/go/login.pb.go: protobufs/*.proto
+	@echo "Compiling protobufs..."
+	@cd protobufs; buf generate ; cd ..
+
 
 
 ## Other tools
