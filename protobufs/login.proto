@@ -1,0 +1,60 @@
+syntax = "proto3";
+option go_package = ".;protobufs";
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+
+service Login {
+    rpc Register(RegisterRequest) returns (RegisterResponse) {
+        option (google.api.http) = {
+            post: "/api/login/register"
+            body: "*"
+        };
+    }
+    rpc Login(LoginRequest) returns (LoginResponse) {
+        option (google.api.http) = {
+            post: "/api/login/login"
+            body: "*"
+        };
+    }
+    rpc Logout(LogoutRequest) returns (LogoutResponse) {
+        option (google.api.http) = {
+            post: "/api/login/logout"
+            body: "*"
+        };
+    }
+}
+
+message User {
+    uint64 id = 1;
+    string username = 2;
+    string email = 3;
+}
+
+message RegisterRequest {
+    string username = 1;
+    string email = 2;
+    string password = 3;
+}
+
+message RegisterResponse {
+    string session_token = 1;
+    User user = 2;
+}
+
+message LoginRequest {
+    string email = 2;
+    string password = 3;
+}
+
+message LoginResponse {
+    string session_token = 1;
+    User user = 2;
+}
+
+message LogoutRequest {
+    string session_token = 1;
+}
+
+message LogoutResponse {
+
+}
