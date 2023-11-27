@@ -14,6 +14,10 @@ import (
 )
 
 func main() {
+	logger := slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
+		Level: slog.LevelDebug,
+	}))
+	slog.SetDefault(logger)
 	// Load the comics and login Repositories
 	var comicsRepo comics_repo.Repository
 	var loginRepo login_repository.Repository

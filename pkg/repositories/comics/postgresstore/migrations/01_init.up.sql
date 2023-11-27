@@ -1,3 +1,4 @@
+-- +goose Up
 CREATE TABLE webcomic (
     webcomic_id SERIAL PRIMARY KEY,
     ordinal INTEGER,

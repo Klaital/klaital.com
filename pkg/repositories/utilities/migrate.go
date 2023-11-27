@@ -14,6 +14,7 @@ func ConnectAndMigratePostgres(connectFmt string, targetDbName string, migration
 	// Attempt to connect to the project DB
 	projectDb, err := sql.Open("postgres", fmt.Sprintf(connectFmt, targetDbName))
 	if err == nil {
+		slog.Debug("Successfully connected to exiting project DB", "db", targetDbName)
 		err = MigrateSql(projectDb, migrationsFS)
 		return projectDb, err
 	}

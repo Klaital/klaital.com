@@ -2,16 +2,15 @@ package login_postgresstore
 
 import (
 	"context"
-	"database/sql"
 	"embed"
 	"fmt"
 
 	"github.com/caarlos0/env/v10"
-	"github.com/pressly/goose/v3"
 
 	kerrors "github.com/klaital/klaital.com/pkg/errors"
 	login_repository "github.com/klaital/klaital.com/pkg/repositories/login"
 	"github.com/klaital/klaital.com/pkg/repositories/login/postgresstore/queries"
+	"github.com/klaital/klaital.com/pkg/repositories/utilities"
 )
 
 //go:embed migrations/*.sql
@@ -34,18 +33,9 @@ func New() (*Repository, error) {
 	}
 
 	// Connect to the database
-	db, err := sql.Open("postgres", fmt.Sprintf(cfg.ConnectionStringFmt, cfg.DbName))
+	db, err := utilities.ConnectAndMigratePostgres(cfg.ConnectionStringFmt, cfg.DbName, MigrationsFS)
 	if err != nil {
-		return nil, fmt.Errorf("connecting to db for login_postgresstore: %w", err)
-	}
-
-	// Run migrations
-	goose.SetBaseFS(MigrationsFS)
-	if err := goose.SetDialect("postgres"); err != nil {
-		return nil, fmt.Errorf("set dialect to postgres for login_postgresstore: %w", err)
-	}
-	if err := goose.Up(db, "migrations"); err != nil {
-		return nil, fmt.Errorf("migrating db schema for login_postgresstore: %w", err)
+		return nil, fmt.Errorf("connecting to db for comics_postgresstore: %w", err)
 	}
 
 	// Initialize Repository
