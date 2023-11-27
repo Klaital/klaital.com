@@ -7,7 +7,7 @@ import (
 	"github.com/klaital/klaital.com/cmd/server/comics/grpc"
 	grpcgateway "github.com/klaital/klaital.com/cmd/server/comics/grpc-gateway"
 	comics_repo "github.com/klaital/klaital.com/pkg/repositories/comics"
-	"github.com/klaital/klaital.com/pkg/repositories/comics/postgresstore"
+	comics_postgresstore "github.com/klaital/klaital.com/pkg/repositories/comics/postgresstore"
 	login_repository "github.com/klaital/klaital.com/pkg/repositories/login"
 	login_postgresstore "github.com/klaital/klaital.com/pkg/repositories/login/postgresstore"
 	comics_service "github.com/klaital/klaital.com/pkg/service/comics"
@@ -19,7 +19,7 @@ func main() {
 	var loginRepo login_repository.Repository
 	var err error
 
-	comicsRepo, err = postgresstore.New()
+	comicsRepo, err = comics_postgresstore.New()
 	if err != nil {
 		slog.Error("Failed to connect to comics Repository", "err", err)
 		os.Exit(1)

@@ -6,18 +6,6 @@ import (
 )
 
 type Repository interface {
-	// AddUser will register a new user
-	AddUser(ctx context.Context, username, email, password string) (*User, error)
-
-	// GetUser will fetch a user's details. Use GetComics to fetch that user's subscriptions.
-	GetUser(ctx context.Context, id uint64) (*User, error)
-
-	// UpdateUser will modify a user's data
-	UpdateUser(ctx context.Context, userId uint64, newData *User) error
-
-	// DeleteUser will remove a user from the DB.
-	// This will cascade to removing all of their comics/RSS data as well.
-	DeleteUser(ctx context.Context, userId uint64) error
 
 	// GetComics will retrieve all comics data for the user. If the supplied filters are not nil,
 	// then the values are used as filters.

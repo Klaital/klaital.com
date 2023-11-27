@@ -5,11 +5,11 @@ import (
 	"database/sql"
 	"embed"
 	"fmt"
-	"log/slog"
 
 	"github.com/caarlos0/env/v10"
 	"github.com/pressly/goose/v3"
 
+	kerrors "github.com/klaital/klaital.com/pkg/errors"
 	login_repository "github.com/klaital/klaital.com/pkg/repositories/login"
 	"github.com/klaital/klaital.com/pkg/repositories/login/postgresstore/queries"
 )
@@ -30,7 +30,7 @@ func New() (*Repository, error) {
 	// Load settings from environment variables
 	var cfg Config
 	if err := env.Parse(&cfg); err != nil {
-		slog.Error("Failed to parse env", "pkg", "login_postgresstore", "err", err)
+		return nil, fmt.Errorf("parsing login_postgresstore env: %w", err)
 	}
 
 	// Connect to the database
@@ -70,8 +70,19 @@ func (r *Repository) GetUser(ctx context.Context, userId uint64) (*login_reposit
 	if err != nil {
 		return nil, fmt.Errorf("get user by id query: %w", err)
 	}
-	return &login_repository.User{}, nil
+	return &login_repository.User{
+		ID:             userId,
+		Username:       u.Username,
+		Email:          u.Email,
+		PasswordDigest: u.PasswordDigest,
+	}, nil
 }
-func (r *Repository) GetUserByEmail(ctx context.Context, email, passwd string) (*login_repository.User, error)
-func (r *Repository) UpdateName(ctx context.Context, id uint64, newUsername string) error
-func (r *Repository) DeleteUser(ctx context.Context, id uint64) error
+func (r *Repository) GetUserByEmail(ctx context.Context, email, passwd string) (*login_repository.User, error) {
+	return nil, kerrors.ErrNotImplemented
+}
+func (r *Repository) UpdateName(ctx context.Context, id uint64, newUsername string) error {
+	return kerrors.ErrNotImplemented
+}
+func (r *Repository) DeleteUser(ctx context.Context, id uint64) error {
+	return kerrors.ErrNotImplemented
+}

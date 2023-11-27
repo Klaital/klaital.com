@@ -36,7 +36,7 @@ func (s *Server) Start() error {
 	if err != nil {
 		return fmt.Errorf("start grpc server: %w", err)
 	}
-	s.srv.Serve(s.lis)
+	return s.srv.Serve(s.lis)
 }
 
 func (s *Server) Stop() {

@@ -5,21 +5,44 @@ import (
 	"database/sql"
 	"embed"
 	"fmt"
-	"log/slog"
+
+	"github.com/caarlos0/env/v10"
+	_ "github.com/lib/pq"
 
 	datalayer "github.com/klaital/klaital.com/pkg/repositories/comics"
 	"github.com/klaital/klaital.com/pkg/repositories/comics/postgresstore/queries"
+	"github.com/klaital/klaital.com/pkg/repositories/utilities"
 )
 
 //go:embed migrations/*
-var Migrations embed.FS
+var MigrationsFS embed.FS
 
-type Store struct {
-	q *queries.Queries
+type Repository struct {
+	Queries *queries.Queries
 }
 
-func New(db *sql.DB) *Store {
-	return &Store{q: queries.New(db)}
+type Config struct {
+	DbName              string `env:"COMICS_DB_NAME" envDefault:"webcomics"`
+	ConnectionStringFmt string `env:"COMICS_DB_CONNECT_FMT" envDefault:"postgres://klaital:rootpw@postgres-klaital:5432/%s?sslmode=disable"`
+}
+
+func New() (*Repository, error) {
+	var cfg Config
+	if err := env.Parse(&cfg); err != nil {
+		return nil, fmt.Errorf("parsing comics_postgresstore env: %w", err)
+	}
+
+	db, err := utilities.ConnectAndMigratePostgres(cfg.ConnectionStringFmt, cfg.DbName, MigrationsFS)
+	if err != nil {
+		return nil, fmt.Errorf("connecting to db for comics_postgresstore: %w", err)
+	}
+
+	// Initialize Repository
+	repo := &Repository{
+		Queries: queries.New(db),
+	}
+
+	return repo, nil
 }
 
 func StringPtrToSql(s *string) sql.NullString {
@@ -34,36 +57,7 @@ func StringPtrToSql(s *string) sql.NullString {
 	return ns
 }
 
-func (s *Store) AddUser(ctx context.Context, username, email, password string) (*datalayer.User, error) {
-	//// Check for existing user in cache
-	//for _, u := range s.users {
-	//	if u.Email == email {
-	//		return nil, datalayer.ErrEmailAlreadyUsed
-	//	}
-	//}
-	//u := datalayer.User{
-	//	ID:             uint64(rand.Int63()),
-	//	Email:          email,
-	//	PasswordDigest: password, // TODO: digest the password here? Require it to be digested before being passed in?
-	//}
-
-	// TODO: cache the user's login session
-
-	err := s.q.AddUser(ctx, queries.AddUserParams{
-		Username: username,
-		Email:    email,
-		Passwd:   password,
-	})
-	if err != nil {
-		slog.Error("Failed to add user", "err", err, "email", email)
-		return nil, fmt.Errorf("creating user: %w", err)
-	}
-
-	// TODO: convert to RETURNING id and populate return user
-	return nil, nil
-}
-
-func (s *Store) AddComic(ctx context.Context, c *datalayer.Comic) error {
+func (s *Repository) AddComic(ctx context.Context, c *datalayer.Comic) error {
 	params := queries.AddComicParams{
 		Ordinal: sql.NullInt32{
 			Valid: true,
@@ -87,7 +81,7 @@ func (s *Store) AddComic(ctx context.Context, c *datalayer.Comic) error {
 		LastRead:         sql.NullTime{Valid: false},
 	}
 
-	err := s.q.AddComic(ctx, params)
+	err := s.Queries.AddComic(ctx, params)
 	if err != nil {
 		return fmt.Errorf("adding comic: %w", err)
 	}
@@ -96,42 +90,30 @@ func (s *Store) AddComic(ctx context.Context, c *datalayer.Comic) error {
 	return nil
 }
 
-func (s *Store) GetUser(ctx context.Context, id uint64) (*datalayer.User, error) {
+func (s *Repository) GetComics(ctx context.Context, userId uint64, filterNsfw *bool, filterActive *bool) ([]datalayer.Comic, error) {
 	return nil, datalayer.ErrNotImplemented
 }
 
-func (s *Store) UpdateUser(ctx context.Context, userId uint64, newData *datalayer.User) error {
-	return datalayer.ErrNotImplemented
-}
-
-func (s *Store) DeleteUser(ctx context.Context, userId uint64) error {
-	return datalayer.ErrNotImplemented
-}
-
-func (s *Store) GetComics(ctx context.Context, userId uint64, filterNsfw *bool, filterActive *bool) ([]datalayer.Comic, error) {
+func (s *Repository) GetComic(ctx context.Context, userId, comicId uint64) (*datalayer.Comic, error) {
 	return nil, datalayer.ErrNotImplemented
 }
 
-func (s *Store) GetComic(ctx context.Context, userId, comicId uint64) (*datalayer.Comic, error) {
-	return nil, datalayer.ErrNotImplemented
-}
-
-func (s *Store) UpdateComic(ctx context.Context, c *datalayer.Comic) error {
+func (s *Repository) UpdateComic(ctx context.Context, c *datalayer.Comic) error {
 	return datalayer.ErrNotImplemented
 }
 
-func (s *Store) DeleteComic(ctx context.Context, userId, comicId uint64) error {
+func (s *Repository) DeleteComic(ctx context.Context, userId, comicId uint64) error {
 	return datalayer.ErrNotImplemented
 }
 
-func (s *Store) MarkComicRead(ctx context.Context, userId, comicId uint64) error {
+func (s *Repository) MarkComicRead(ctx context.Context, userId, comicId uint64) error {
 	return datalayer.ErrNotImplemented
 }
 
-func (s *Store) AddRssItems(ctx context.Context, userId, comicId uint64, rssItems []datalayer.RssItem) error {
+func (s *Repository) AddRssItems(ctx context.Context, userId, comicId uint64, rssItems []datalayer.RssItem) error {
 	return datalayer.ErrNotImplemented
 }
 
-func (s *Store) MarkRssRead(ctx context.Context, userId uint64, rssItemGuid string) error {
+func (s *Repository) MarkRssRead(ctx context.Context, userId uint64, rssItemGuid string) error {
 	return datalayer.ErrNotImplemented
 }
