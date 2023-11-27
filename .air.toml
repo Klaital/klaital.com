@@ -9,9 +9,9 @@ tmp_dir = "tmp"
 # Just plain old shell command. You could use `make` as well.
 cmd = "make build-local"
 # Binary file yields from `cmd`.
-bin = "./bin/server/comics"
+bin = "./bin/server/monolith"
 # Customize binary.
-full_bin = "./bin/server/comics"
+full_bin = "./bin/server/monolith"
 # Watch these filename extensions.
 include_ext = ["go", "tpl", "tmpl", "html", "js", "sql", "proto", "env"]
 delay = 200
