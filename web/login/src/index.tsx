@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
 import {LoginPage} from "./LoginPage";
+import {RegisterPage} from "./RegisterPage";
 import {createBrowserRouter, RouterProvider} from "react-router-dom";
 
 const root = ReactDOM.createRoot(
@@ -13,7 +14,15 @@ const router = createBrowserRouter([
     {
         path: "/",
         element: <LoginPage />
-    }
+    },
+    {
+        path: "/login",
+        element: <LoginPage />
+    },
+    {
+        path: "/register",
+        element: <RegisterPage />
+    },
 ])
 root.render(
   <React.StrictMode>

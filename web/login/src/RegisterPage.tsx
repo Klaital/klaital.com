@@ -2,21 +2,23 @@ import {FormEvent, useMemo, useState} from "react";
 import {LoginClient} from "./backend/client";
 import {Header} from "./Header";
 
-interface LoginFormElements extends HTMLFormControlsCollection {
+interface RegisterFormElements extends HTMLFormControlsCollection {
+    usernameInput: HTMLInputElement,
     emailInput: HTMLInputElement,
     passwordInput: HTMLInputElement,
 }
-interface LoginFormElement extends HTMLFormElement {
-    readonly elements: LoginFormElements
+interface RegisterFormElement extends HTMLFormElement {
+    readonly elements: RegisterFormElements
 }
-export function LoginPage() {
+export function RegisterPage() {
+    const [username, setUsername] = useState("")
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const backend = useMemo(() => new LoginClient("http://localhost:8180"), []);
 
-    function handleLogin(event: FormEvent<LoginFormElement>) {
+    function handleRegister(event: FormEvent<RegisterFormElement>) {
         event.preventDefault()
-        backend.login(email, password)
+        backend.register(username, email, password)
             .then(
                 (resp) => {
                     console.log("Successfully logged in: " + resp.sessionToken);
@@ -31,7 +33,14 @@ export function LoginPage() {
 
     return <>
         <Header />
-        <form onSubmit={handleLogin}>
+        <form onSubmit={handleRegister}>
+            <div className="form-item">
+                <label htmlFor="usernameInput">Handle: </label>
+                <input id="usernameInput"
+                       value={username}
+                       onChange={e => setUsername(e.target.value)}
+                />
+            </div>
             <div className="form-item">
                 <label htmlFor="emailInput">Email: </label>
                 <input id="emailInput"
@@ -47,7 +56,7 @@ export function LoginPage() {
                        onChange={e => setPassword(e.target.value)}
                 />
             </div>
-            <input type="submit" value="Login" />
+            <input type="submit" value="Register" />
         </form>
     </>
 }
