@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"github.com/rs/cors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
@@ -36,9 +37,15 @@ func (s *Server) Start() error {
 		return fmt.Errorf("starting gateway server: %w", err)
 	}
 
+	withCors := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:*", "https://comics.klaital.com"},
+		AllowedHeaders:   []string{"ACCEPT", "Authorization", "Content-Type", "X-CSRF-Token"},
+		AllowCredentials: true,
+		MaxAge:           300,
+	}).Handler(mux)
+
 	// Start HTTP server (and proxy calls to gRPC server endpoint)
-	s.srv = &http.Server{Addr: s.RestListenAddr}
-	s.srv.Handler = mux
+	s.srv = &http.Server{Addr: s.RestListenAddr, Handler: withCors}
 	return s.srv.ListenAndServe()
 }
 
