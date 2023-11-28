@@ -3,6 +3,7 @@ package main
 import (
 	"log/slog"
 	"os"
+	"os/signal"
 
 	"github.com/caarlos0/env/v10"
 
@@ -14,6 +15,7 @@ import (
 	comics_postgresstore "github.com/klaital/klaital.com/pkg/repositories/comics/postgresstore"
 	login_repository "github.com/klaital/klaital.com/pkg/repositories/login"
 	login_postgresstore "github.com/klaital/klaital.com/pkg/repositories/login/postgresstore"
+	"github.com/klaital/klaital.com/pkg/repositories/login/sessionstore"
 	comics_service "github.com/klaital/klaital.com/pkg/service/comics"
 	login_service "github.com/klaital/klaital.com/pkg/service/login"
 )
@@ -69,23 +71,33 @@ func main() {
 		slog.Error("Failed to connect to login Repository", "err", err)
 		os.Exit(1)
 	}
+	sessionStore := sessionstore.New()
 
 	// Initialize the business layers
 	comicSvc := comics_service.New(comicsRepo, loginRepo)
-	loginSvc := login_service.New(loginRepo)
+	loginSvc := login_service.New(loginRepo, sessionStore)
 
 	// initialize the grpc servers
 	comicsGrpcSvc := comics_grpc.New(comicSvc, cfg.ComicsGrpcAddr)
 	loginGrpcSvc := login_grpc.New(loginSvc, cfg.LoginGrpcAddr)
-	comicsGrpcSvc.Start()
-	loginGrpcSvc.Start()
+	go comicsGrpcSvc.Start()
+	go loginGrpcSvc.Start()
 
 	// initialize the grpc-gateway server
 	comicsGatewaySvc := comics_gateway.New(cfg.ComicsRestAddr, cfg.ComicsGrpcAddr)
-	comicsGatewaySvc.Start()
+	go comicsGatewaySvc.Start()
 	loginGatewaySvc := login_gateway.New(cfg.LoginRestAddr, cfg.LoginGrpcAddr)
-	loginGatewaySvc.Start()
+	go loginGatewaySvc.Start()
 
-	// TODO: listen for the shutdown signal, and gracefully halt the servers
-
+	// listen for the shutdown signal, and gracefully halt the servers
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, os.Interrupt)
+	// Block here until a shutdown signal is received
+	<-sigChan
+	slog.Info("Shutting down")
+	// Shut down the servers
+	loginGatewaySvc.Stop()
+	comicsGatewaySvc.Stop()
+	loginGrpcSvc.Stop()
+	comicsGrpcSvc.Stop()
 }

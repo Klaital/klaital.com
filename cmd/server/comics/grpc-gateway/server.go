@@ -46,5 +46,9 @@ func (s *Server) Stop() {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 	err := s.srv.Shutdown(ctx)
-	slog.Error("Failed to gracefully shut down gateway server", "err", err)
+	if err != nil {
+		slog.Error("Failed to gracefully shut down gateway server", "err", err)
+	} else {
+		slog.Info("Shut down comics gateway server")
+	}
 }

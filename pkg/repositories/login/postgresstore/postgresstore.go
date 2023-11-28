@@ -67,8 +67,18 @@ func (r *Repository) GetUser(ctx context.Context, userId uint64) (*login_reposit
 		PasswordDigest: u.PasswordDigest,
 	}, nil
 }
-func (r *Repository) GetUserByEmail(ctx context.Context, email, passwd string) (*login_repository.User, error) {
-	return nil, kerrors.ErrNotImplemented
+func (r *Repository) GetUserByEmail(ctx context.Context, email string) (*login_repository.User, error) {
+	u, err := r.Queries.GetUser(ctx, email)
+	if err != nil {
+		return nil, fmt.Errorf("get user by email query: %w", err)
+	}
+	return &login_repository.User{
+		ID:             uint64(u.ID),
+		Username:       u.Username,
+		Email:          email,
+		PasswordDigest: u.PasswordDigest,
+	}, nil
+
 }
 func (r *Repository) UpdateName(ctx context.Context, id uint64, newUsername string) error {
 	return kerrors.ErrNotImplemented

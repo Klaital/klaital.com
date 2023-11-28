@@ -13,6 +13,11 @@ plugins:
     opt:
       # - paths=source_relative
       - generate_unbound_methods=true
+  - plugin: go-binary
+    out: ./gen/go
+    opt:
+      # - paths=source_relative
+
   - plugin: openapiv2
     out: ./gen/openapi
 

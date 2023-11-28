@@ -8,7 +8,7 @@ import (
 type Repository interface {
 	AddUser(ctx context.Context, username, email, password string) (uint64, error)
 	GetUser(ctx context.Context, userId uint64) (*User, error)
-	GetUserByEmail(ctx context.Context, email, passwd string) (*User, error)
+	GetUserByEmail(ctx context.Context, email string) (*User, error)
 	UpdateName(ctx context.Context, id uint64, newUsername string) error
 	DeleteUser(ctx context.Context, id uint64) error
 }

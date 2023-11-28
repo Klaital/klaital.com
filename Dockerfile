@@ -28,6 +28,8 @@ RUN go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.2
 RUN go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@latest
 RUN go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@latest
 RUN /usr/bin/npm install ts-proto
+RUN go install golang.org/x/tools/gopls@latest
+RUN go install github.com/go-delve/delve/cmd/dlv@latest
 ENV PATH="${PATH}:/${GOPATH}/bin"
 
 #RUN mkdir /var/run/sshd
@@ -44,8 +46,18 @@ ENV PATH="${PATH}:/${GOPATH}/bin"
 # Hot reloading tools
 RUN go install github.com/cosmtrek/air@latest
 EXPOSE 22
+
+# Login Service
 EXPOSE 8080
 EXPOSE 9000
+# Comics Service
+EXPOSE 8081
+EXPOSE 9001
+# Library Service
+EXPOSE 8082
+EXPOSE 9002
+
+
 
 ENTRYPOINT ["air"]
 

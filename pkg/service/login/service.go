@@ -4,19 +4,25 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 
 	"golang.org/x/crypto/bcrypt"
 
 	login_repository "github.com/klaital/klaital.com/pkg/repositories/login"
+	"github.com/klaital/klaital.com/pkg/repositories/login/sessionstore"
 	pb "github.com/klaital/klaital.com/protobufs/gen/go"
 )
 
 type Service struct {
-	Repo login_repository.Repository
+	Repo     login_repository.Repository
+	Sessions *sessionstore.Repository
 }
 
-func New(repo login_repository.Repository) *Service {
-	return &Service{Repo: repo}
+func New(repo login_repository.Repository, sessions *sessionstore.Repository) *Service {
+	return &Service{
+		Repo:     repo,
+		Sessions: sessions,
+	}
 }
 
 var ErrPasswordTooWeak = errors.New("password too weak")
@@ -39,14 +45,46 @@ func (s *Service) Register(ctx context.Context, name, email, passwordRaw string)
 	}
 
 	// TODO: use the session store to create a new user session
-
+	u := &pb.User{
+		Id:       newId,
+		Username: name,
+		Email:    email,
+	}
+	sessionToken, err := s.Sessions.Set(ctx, u)
+	if err != nil {
+		slog.Error("Failed to log in newly-registered user", "err", err)
+	}
 	resp := &pb.RegisterResponse{
-		User: &pb.User{
-			Id:       newId,
-			Username: name,
-			Email:    email,
-		},
-		SessionToken: "",
+		User:         u,
+		SessionToken: sessionToken,
+	}
+	return resp, nil
+}
+
+func (s *Service) Login(ctx context.Context, email, rawPassword string) (*pb.LoginResponse, error) {
+	// Pull user data from database
+	u, err := s.Repo.GetUserByEmail(ctx, email)
+	if err != nil {
+		return nil, fmt.Errorf("login fetching user data: %w", err)
+	}
+
+	if !login_repository.CheckPassword([]byte(u.PasswordDigest), []byte(rawPassword)) {
+		return nil, login_repository.ErrPasswordMismatch
+	}
+
+	pbUser := &pb.User{
+		Id:       u.ID,
+		Email:    u.Email,
+		Username: u.Username,
+	}
+	sessionToken, err := s.Sessions.Set(ctx, pbUser)
+	if err != nil {
+		slog.Error("Failed to log in user", "err", err)
+		return nil, err
+	}
+	resp := &pb.LoginResponse{
+		User:         pbUser,
+		SessionToken: sessionToken,
 	}
 	return resp, nil
 }
