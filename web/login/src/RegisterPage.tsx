@@ -1,6 +1,6 @@
 import {FormEvent, useMemo, useState} from "react";
 import {LoginClient} from "./backend/client";
-import {Header} from "./Header";
+import {Header} from "./components/Header/Header";
 
 interface RegisterFormElements extends HTMLFormControlsCollection {
     usernameInput: HTMLInputElement,
@@ -21,7 +21,7 @@ export function RegisterPage() {
         backend.register(username, email, password)
             .then(
                 (resp) => {
-                    console.log("Successfully logged in: " + resp.sessionToken);
+                    console.log("Successfully logged in: " + resp.sessionToken)
                 }
             )
             .catch(

@@ -8,6 +8,7 @@ export function Header() {
                 </div>
                 <div className="header-menu">
                     <a className="header-tile" href="/">Home</a>
+                    <a className="header-tile" href="/preferences">Account</a>
                     <a className="header-tile" href="/login">Login</a>
                     <a className="header-tile" href="/register">Register</a>
                 </div>
