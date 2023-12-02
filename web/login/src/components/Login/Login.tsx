@@ -1,6 +1,5 @@
-import React, {Dispatch, FormEvent, SetStateAction, useMemo, useState} from 'react'
+import React, {FormEvent, useMemo, useState} from 'react'
 import './Login.css'
-import PropTypes from "prop-types";
 import {LoginClient} from "../../backend/client";
 import {LoginResponse} from "../../backend/login";
 
