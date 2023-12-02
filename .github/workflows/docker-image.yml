@@ -1,4 +1,4 @@
-name: Monolith Docker Image CI
+name: Build backend docker image
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}/monolith
@@ -6,6 +6,7 @@ env:
 on:
   push:
     branches: [ "main" ]
+    paths-ignore: ["**/*.ts*", "**/*.md"]
   pull_request:
     branches: [ "main" ]
 

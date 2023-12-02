@@ -16,22 +16,23 @@ jobs:
     permissions:
       contents: read
       packages: write
-      # 
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '20.x'
-      - run: cd web/login
       - run: npm install
         name: install npm dependencies
+        working-directory: web/login 
       - run: npm run build
         name: compile 
+        working-directory: web/login
       - name: Tar output files
-        run: tar -czvf klaital-web-login.tar.gz build/
+        run: tar -czvf klaital-web-login.tar.gz .
+        working-directory: web/login/build
       - name: Upload website tarball
         uses: actions/upload-artifact@v3
         with:
           name: klaital-web-login
-          path: klaital-web-login.tar.gz
+          path: web/login/build/klaital-web-login.tar.gz
