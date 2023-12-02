@@ -1,7 +1,7 @@
 
 .PHONY: build
 build:
-	@docker build --ssh default -t $(IMAGE):latest .
+	@docker build -t ghcr.io/klaital/klaital.com-monolith:latest .
 
 .PHONY: build-local
 build-local: build-comics build-monolith
@@ -44,9 +44,8 @@ protobufs/gen/go/login.pb.go: protobufs/*.proto
 	@echo "Compiling protobufs..."
 	@cd protobufs; buf generate ; cd ..
 
+# To be run on the server
+.PHONY: update
+	@echo "Pulling latest production backend image..."
+	@docker compose -f ./run/docker-compose-prod.yml pull
 
-
-## Other tools
-
-hasher:
-	go build -o ./bin/hasher ./cmd/hasher

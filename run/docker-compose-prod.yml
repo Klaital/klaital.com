@@ -1,0 +1,10 @@
+version: '3.8'
+services:
+  klaital:
+    container_name: klaital-backend
+    image: ghcr.io/klaital/klaital.com/monolith:main
+    restart: unless-stopped
+    ports:
+      - 10002:8080
+      - 19002:9000
+
